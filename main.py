@@ -2,7 +2,7 @@ import sys
 from HashTable import TablaHash
 
 global hash
-hash = TablaHash(50)
+hash = TablaHash()
 
 
 
@@ -37,7 +37,14 @@ hash = TablaHash(50)
 #     return None
 
 
+def load_txt():
+    #Guardar los datos en un archivo txt
+    with open ("BaseDeDatos.txt", "a+") as data:
+        data.write(f"{hash.recorrer()}\n")
+    return
 
+def load_table():
+    return
 
 def new_game():
     model = input("\nIngrese el modelo del juego: ")
@@ -83,26 +90,27 @@ def new_game():
 
     status = "STOCK"
 
-    hash.agregar(model, model, title, price, status)
+    hash.insert_by_model(model, model, title, price, status)
+    hash.insert_by_title(title, model, title, price, status)
 
-    hash.agregar2(title, model, title, price, status)
+    # hash.agregar(model, model, title, price, status)
 
-    #Guardar los datos en un archivo txt
-    # with open ("BaseDeDatos.txt", "a+") as data:
-    #     data.write(f"{model} - {title} - {price} - {status}\n")
+    # hash.agregar2(title, model, title, price, status)
 
     return
 
 def search_game_by_model():
     model = input("\nIngrese el modelo del juego que desea buscar: ")
     model = model.upper()
-    result = hash.obtener(model)
+    # result = hash.obtener(model)
+    result = hash.search_by_model(model)
 
     while result == None:
         print("\n¡Modelo invalido! Por favor ingrese un modelo válido.")
         model = input("\nIngrese el modelo del juego que desea buscar: ")
         model = model.upper()
-        result = hash.obtener(model)
+        # result = hash.obtener(model)
+        result = hash.search_by_model(model)
 
     print(result)
     return
@@ -110,13 +118,13 @@ def search_game_by_model():
 def search_game_by_title():
     title = input("Ingrese el título del juego que desea buscar: ")
     title = title.upper()
-    result = hash.obtener2(title)
+    result = hash.search_by_title(title)
 
     while result == None:
         print("\n¡Título invalido! Por favor ingrese un título válido.")
         title = input("\nIngrese el título del juego que desea buscar: ")
         title = title.upper()
-        result = hash.obtener2(title)
+        result = hash.search_by_title(title)
 
     print(result)
     return
@@ -144,8 +152,15 @@ def rent_game():
             model = input("\nIngrese el modelo del juego que desea alquilar: ")
             model =  model.upper()
 
-        for x in hash.obtener(model):
+        for x in hash.search_by_model(model):
             result.append(x)
+
+        if result[-1] == "ALQUILADO":
+            print("El juego no se encuentra disponible en estos momentos")
+        else:
+            result[-1] = "ALQUILADO"
+            print("Se ha alquilado exitosamente el juego")
+
     elif option == 2:
 
         title = input("\nIngrese el título del juego que desea alquilar: ")
@@ -156,18 +171,17 @@ def rent_game():
             title = input("\nIngrese el título del juego que desea alquilar: ")
             title = title.upper()
 
-        for x in hash.obtener2(title):
+        for x in hash.search_by_title(title):
             result.append(x)
 
-    if result[-1] == "ALQUILADO":
-        print("El juego no se encuentra disponible en estos momentos")
-    else:
-        result[-1] = "ALQUILADO"
-        print("Se ha alquilado exitosamente el juego")
+        if result[-1] == "ALQUILADO":
+            print("El juego no se encuentra disponible en estos momentos")
+        else:
+            result[-1] = "ALQUILADO"
+            print("Se ha alquilado exitosamente el juego")
 
-    # print(result)
-
-    hash.agregar(result[0], result[0], result[1], result[2], result[3])
+    hash.modify_by_model(result[0], result[0], result[1], result[2], result[3])
+    hash.modify_by_title(result[1], result[0], result[1], result[2], result[3])
 
     return
 
@@ -194,7 +208,7 @@ def return_game():
             model = input("\nIngrese el modelo del juego que desea devolver: ")
             model =  model.upper()
 
-        for x in hash.obtener(model):
+        for x in hash.search_by_model(model):
             result.append(x)
     elif option == 2:
 
@@ -206,7 +220,7 @@ def return_game():
             title = input("\nIngrese el título del juego que desea devolver: ")
             title = title.upper()
 
-        for x in hash.obtener2(title):
+        for x in hash.search_by_title(title):
             result.append(x)
 
     if result[-1] == "STOCK":
@@ -217,12 +231,60 @@ def return_game():
 
     # print(result)
 
-    hash.agregar(result[0], result[0], result[1], result[2], result[3])
+    hash.modify_by_model(result[0], result[0], result[1], result[2], result[3])
+    hash.modify_by_title(result[1], result[0], result[1], result[2], result[3])
     return
 
 def delete_game():
+    model = ""
+    title = ""
 
-    status = "STOCK"
+    result = []
+
+    print("\n¿Desea buscar por modelo o por título?")
+    print("1. Modelo\n2. Título")
+    option = input("-> ")
+
+    while not option.isnumeric():
+        print("¡Ingreso invalido! Por favor ingrese una opción de la lista.")
+        option = input("-> ")
+
+    option = int(option)
+
+    if option == 1:
+        model = input("\nIngrese el modelo del juego que desea alquilar: ")
+        model =  model.upper()
+
+        while result == None:
+            print("\n¡Modelo invalido! Por favor ingrese un modelo válido.")
+            model = input("\nIngrese el modelo del juego que desea alquilar: ")
+            model =  model.upper()
+
+        # hash.delete_by_model(model)
+
+        for x in hash.search_by_model(model):
+            result.append(x)
+
+    elif option == 2:
+
+        title = input("\nIngrese el título del juego que desea alquilar: ")
+        title = title.upper()
+
+        while result == None:
+            print("\n¡Título invalido! Por favor ingrese un título válido.")
+            title = input("\nIngrese el título del juego que desea alquilar: ")
+            title = title.upper()
+
+        # hash.eliminar2(model)
+
+        for x in hash.search_by_title(title):
+            result.append(x)
+
+    
+    hash.delete_by_model(result[0])
+    hash.delete_by_title(result[1])
+
+    print("Se ha eliminado exitosamente el juego")
 
     return
 
@@ -253,8 +315,11 @@ def main():
         elif option == 6:
             delete_game()
         elif option == 7:
+            hash.recorrer()
             sys.exit()
             False
+        elif option == 8:
+            hash.recorrer()
 
     
     
