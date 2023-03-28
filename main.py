@@ -37,14 +37,14 @@ hash = TablaHash()
 #     return None
 
 
-def load_txt():
-    #Guardar los datos en un archivo txt
-    with open ("BaseDeDatos.txt", "a+") as data:
-        data.write(f"{hash.recorrer()}\n")
-    return
+# def load_txt():
+#     #Guardar los datos en un archivo txt
+#     with open ("BaseDeDatos.txt", "a+") as data:
+#         data.write(f"{hash.recorrer()}\n")
+#     return
 
-def load_table():
-    return
+# def load_table():
+#     return
 
 def new_game():
     model = input("\nIngrese el modelo del juego: ")
@@ -60,6 +60,7 @@ def new_game():
         print("¡Ingreso invalido! Debe contener 6 letras y 2 números")
         model = input("Ingrese el modelo del juego: ")
         model = model.upper()
+        digits = 0
 
         for char in model:
             if char.isdigit():
@@ -289,7 +290,10 @@ def delete_game():
     return
 
 def main():
-    print("BIENVENIDO A RENT A GAME CARACAS\n")
+    hash.write_table_by_model()
+    hash.write_table_by_title()
+
+    print("\nBIENVENIDO A RENT A GAME CARACAS\n")
     
     while True:
         print("\nEscoja una opción:\n")
@@ -315,12 +319,11 @@ def main():
         elif option == 6:
             delete_game()
         elif option == 7:
-            hash.recorrer()
+            hash.empty_txt_by_model()
+            hash.write_txt_by_model()
+            hash.empty_txt_by_title()
+            hash.write_txt_by_title()
             sys.exit()
-            False
-        elif option == 8:
-            hash.recorrer()
-
-    
+            False    
     
 main()

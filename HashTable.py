@@ -1,26 +1,41 @@
 class TablaHash:
     def __init__(self):
-        self.model_primary_table = [[] for _ in range(3)]
-        self.model_overflow_table = [[] for _ in range (6)]
-        self.title_primary_table = [[] for _ in range(3)]
-        self.title_overflow_table = [[] for _ in range (6)]
+        # self.model_primary_table = [[] for _ in range(3)]
+        # self.model_overflow_table = [[] for _ in range (6)]
+        # self.title_primary_table = [[] for _ in range(3)]
+        # self.title_overflow_table = [[] for _ in range (6)]
+
+        self.model_primary_table = [[], [], []]
+        self.model_overflow_table = [[], [], [], [], [], []]
+        self.title_primary_table = [[], [], []]
+        self.title_overflow_table = [[], [], [], [], [], []]
+
+        self.model_key_list = []
+        self.title_key_list = []
     
     def primary_hash_function(self, key):
         return hash(key) % 3
 
     def insert_by_model(self, key, model, title, price, status):
-        primary_index = self.primary_hash_function(key)
-        primary_list = self.model_primary_table[primary_index]
-        if len(primary_list) < 3:
-            primary_list.append([key, [model, title, price, status]])
-        else:
-            overflow_index = primary_index % 6
-            overflow_list = self.model_overflow_table[overflow_index]
-            if len(overflow_list) < 3:
-                overflow_list.append([key, [model, title, price, status]])
+        try:
+            primary_index = self.primary_hash_function(key)
+            primary_list = self.model_primary_table[primary_index]
+            if len(primary_list) < 3:
+                primary_list.append([key, [model, title, price, status]])
+                self.model_key_list.append(key)
+                print("Primario")
             else:
-                raise ValueError("No hay espacio en la tabla de hash")
-            
+                overflow_index = primary_index % 6
+                overflow_list = self.model_overflow_table[overflow_index]
+                if len(overflow_list) < 3:
+                    overflow_list.append([key, [model, title, price, status]])
+                    self.model_key_list.append(key)
+                    print("Overflow")
+                # else:
+                    # raise ValueError("No hay espacio en la tabla de hash")
+        except ValueError:
+            print("No hay espacio en la tabla de hash")
+
     def search_by_model(self, key):
         primary_index = self.primary_hash_function(key)
         primary_list = self.model_primary_table[primary_index]
@@ -56,38 +71,96 @@ class TablaHash:
         primary_list = self.model_primary_table[primary_index]
         for item in primary_list:
             if item[0] == key:
+                item[0] = None
                 item[1] = None
         
         overflow_index = primary_index % 6
         overflow_list = self.model_overflow_table[overflow_index]
         for item in overflow_list:
             if item[0] == key:
+                item[0] = None
                 item[1] = None
             
         return None
 
-
-
+    def write_txt_by_model(self):
+        for key in self.model_key_list:
+            primary_index = self.primary_hash_function(key)
+            primary_list = self.model_primary_table[primary_index]
+            for item in primary_list:
+                if item[0] == key:
+                    with open ("ModelKeyDB.txt", "a") as data:
+                        data.write(f"{item[0]}: {item[1]}\n")
+            
+            # data.close()
+            
+            overflow_index = primary_index % 6
+            overflow_list = self.model_overflow_table[overflow_index]
+            for item in overflow_list:
+                if item[0] == key:
+                    with open ("ModelKeyDB.txt", "a") as data:
+                        data.write(f"{item[0]}: {item[1]}\n")
+            
+            # data.close()
+            
+        return None
     
+    def write_table_by_model(self):
+
+        with open ("ModelKeyDB.txt", "r") as data:
+            for line in data:
+                info = line.strip().split(":")
+                key = info[0]
+                value = info[1]
+                
+                value_split = value.strip().split(",")
+                
+                model = value_split[0].strip("[' '")
+                title = value_split[1].strip("' '")
+                price = value_split[2].strip("' '")
+                status = value_split[3].strip("' ']")
+
+                self.insert_by_model(key, model, title, price, status)
+
+            data.close()
+
+        return None
+
+    def empty_txt_by_model(self):
+        with open("ModelKeyDB.txt", "w+") as data:
+            datos = data.readlines()
+            data.writelines(datos)
+            data.close()
+        return
 
 
 
-    
+
+
+
+
     def secundary_hash_function(self, key):
         return hash(key) % 3
 
     def insert_by_title(self, key, model, title, price, status):
-        primary_index = self.secundary_hash_function(key)
-        primary_list = self.title_primary_table[primary_index]
-        if len(primary_list) < 3:
-            primary_list.append([key, [model, title, price, status]])
-        else:
-            overflow_index = primary_index % 6
-            overflow_list = self.title_overflow_table[overflow_index]
-            if len(overflow_list) < 3:
-                overflow_list.append([key, [model, title, price, status]])
+        try:
+            primary_index = self.secundary_hash_function(key)
+            primary_list = self.title_primary_table[primary_index]
+            if len(primary_list) < 3:
+                primary_list.append([key, [model, title, price, status]])
+                self.title_key_list.append(key)
+                print("Primario")
             else:
-                raise ValueError("No hay espacio en la tabla de hash")
+                overflow_index = primary_index % 6
+                overflow_list = self.title_overflow_table[overflow_index]
+                if len(overflow_list) < 3:
+                    overflow_list.append([key, [model, title, price, status]])
+                    self.title_key_list.append(key)
+                    print("Overflow")
+                # else:
+                #     raise ValueError("No hay espacio en la tabla de hash")
+        except ValueError:
+            print("No hay espacio en la tabla de hash")
             
     def search_by_title(self, key):
         primary_index = self.secundary_hash_function(key)
@@ -124,18 +197,60 @@ class TablaHash:
         primary_list = self.title_primary_table[primary_index]
         for item in primary_list:
             if item[0] == key:
+                item[0] = None
                 item[1] = None
         
         overflow_index = primary_index % 6
         overflow_list = self.title_overflow_table[overflow_index]
         for item in overflow_list:
             if item[0] == key:
+                item[0] = None
                 item[1] = None
             
         return None
 
+    def write_txt_by_title(self):
+        for key in self.title_key_list:
+            primary_index = self.primary_hash_function(key)
+            primary_list = self.title_primary_table[primary_index]
+            for item in primary_list:
+                if item[0] == key:
+                    with open ("TitleKeyDB.txt", "a") as data:
+                        data.write(f"{item[0]}: {item[1]}\n")
+            
+            overflow_index = primary_index % 6
+            overflow_list = self.title_overflow_table[overflow_index]
+            for item in overflow_list:
+                if item[0] == key:
+                    with open ("TitleKeyDB.txt", "a") as data:
+                        data.write(f"{item[0]}: {item[1]}\n")
+            
+        return None
+    
+    def write_table_by_title(self):
 
+        with open ("TitleKeyDB.txt", "r") as data:
+            for line in data:
+                info = line.strip().split(":")
+                key = info[0]
+                value = info[1]
+                
+                value_split = info[1].strip().split(",")
+                
+                model = value_split[0].strip("[' '")
+                title = value_split[1].strip("' '")
+                price = value_split[2].strip("' '")
+                status = value_split[3].strip("' ']")
 
+                self.insert_by_title(key, model, title, price, status)
+        return None
+
+    def empty_txt_by_title(self):
+        with open("TitleKeyDB.txt", "w+") as data:
+            datos = data.readlines()
+            data.writelines(datos)
+            data.close()
+        return
 
 
 
